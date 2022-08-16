@@ -1,11 +1,116 @@
-use serde::Deserialize;
+use crate::error::MapTypeError;
+use crate::error::MapTypeError::UnexpectedBoolValue;
+use std::fmt::{Display, Formatter};
+use std::str::FromStr;
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct OsuBool(bool);
+
+impl From<bool> for OsuBool {
+    fn from(boolean: bool) -> Self {
+        Self { 0: boolean }
+    }
+}
+
+impl From<OsuBool> for bool {
+    fn from(osu_boolean: OsuBool) -> Self {
+        osu_boolean.0
+    }
+}
+
+impl FromStr for OsuBool {
+    type Err = MapTypeError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "true" | "1" => Ok(Self { 0: true }),
+            "false" | "0" => Ok(Self { 0: false }),
+            _ => Err(UnexpectedBoolValue),
+        }
+    }
+}
+
+impl Default for OsuBool {
+    fn default() -> Self {
+        Self { 0: false }
+    }
+}
+
+impl Display for OsuBool {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", i8::from(self.0))
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 pub mod general {
-    use super::*;
     use crate::error::GeneralError;
-    use crate::error::GeneralError::UnexpectedCountdownValue;
+    use crate::error::GeneralError::{
+        UnexpectedCountdownFormat, UnexpectedCountdownValue, UnexpectedGamemodeFormat,
+        UnexpectedGamemodeValue, UnexpectedOverlayPosValue, UnexpectedSampleSetValue,
+    };
+    use std::fmt::{Display, Formatter};
+    use std::str::FromStr;
 
-    #[derive(Debug, Deserialize)]
+    #[derive(Debug, PartialEq, Eq)]
+    pub enum Gamemode {
+        STD,
+        TAIKO,
+        CTB,
+        MANIA,
+    }
+
+    impl Default for Gamemode {
+        fn default() -> Self {
+            Gamemode::STD
+        }
+    }
+
+    impl TryFrom<i32> for Gamemode {
+        type Error = GeneralError;
+
+        fn try_from(value: i32) -> Result<Self, Self::Error> {
+            match value {
+                0 => Ok(Gamemode::STD),
+                1 => Ok(Gamemode::TAIKO),
+                2 => Ok(Gamemode::CTB),
+                3 => Ok(Gamemode::MANIA),
+                _ => Err(UnexpectedGamemodeValue { value }),
+            }
+        }
+    }
+
+    impl FromStr for Gamemode {
+        type Err = GeneralError;
+
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            i32::from_str(s)
+                .map_err(|_| UnexpectedGamemodeFormat)?
+                .try_into()
+        }
+    }
+
+    impl From<&Gamemode> for i32 {
+        fn from(mode: &Gamemode) -> Self {
+            match mode {
+                Gamemode::STD => 0,
+                Gamemode::TAIKO => 1,
+                Gamemode::CTB => 2,
+                Gamemode::MANIA => 3,
+            }
+        }
+    }
+
+    impl Display for Gamemode {
+        fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+            write!(f, "{}", i32::from(self))
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    #[derive(Debug, PartialEq, Eq)]
     pub enum OverlayPosition {
         /// use skin setting
         NOCHANGE,
@@ -21,8 +126,39 @@ pub mod general {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    #[derive(Debug, Deserialize)]
+    impl FromStr for OverlayPosition {
+        type Err = GeneralError;
+
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            match s {
+                "NoChange" => Ok(OverlayPosition::NOCHANGE),
+                "Below" => Ok(OverlayPosition::BELOW),
+                "Above" => Ok(OverlayPosition::ABOVE),
+                _ => Err(UnexpectedOverlayPosValue {
+                    value: s.to_string(),
+                }),
+            }
+        }
+    }
+
+    impl From<&OverlayPosition> for String {
+        fn from(pos: &OverlayPosition) -> Self {
+            match pos {
+                OverlayPosition::NOCHANGE => String::from("NoChange"),
+                OverlayPosition::BELOW => String::from("Below"),
+                OverlayPosition::ABOVE => String::from("Above"),
+            }
+        }
+    }
+
+    impl Display for OverlayPosition {
+        fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+            write!(f, "{}", String::from(self))
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    #[derive(Debug, PartialEq, Eq)]
     pub enum SampleSet {
         NORMAL,
         SOFT,
@@ -35,8 +171,39 @@ pub mod general {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    #[derive(Debug, Deserialize)]
+    impl FromStr for SampleSet {
+        type Err = GeneralError;
+
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            match s {
+                "Normal" => Ok(SampleSet::NORMAL),
+                "Soft" => Ok(SampleSet::SOFT),
+                "Drum" => Ok(SampleSet::DRUM),
+                _ => Err(UnexpectedSampleSetValue {
+                    value: s.to_string(),
+                }),
+            }
+        }
+    }
+
+    impl From<&SampleSet> for String {
+        fn from(pos: &SampleSet) -> Self {
+            match pos {
+                SampleSet::NORMAL => String::from("Normal"),
+                SampleSet::SOFT => String::from("Soft"),
+                SampleSet::DRUM => String::from("Drum"),
+            }
+        }
+    }
+
+    impl Display for SampleSet {
+        fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+            write!(f, "{}", String::from(self))
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    #[derive(Debug, PartialEq, Eq)]
     pub enum Countdown {
         NONE,
         NORMAL,
@@ -61,6 +228,33 @@ pub mod general {
                 3 => Ok(Countdown::DOUBLE),
                 _ => Err(UnexpectedCountdownValue { value }),
             }
+        }
+    }
+
+    impl FromStr for Countdown {
+        type Err = GeneralError;
+
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            i32::from_str(s)
+                .map_err(|_| UnexpectedCountdownFormat)?
+                .try_into()
+        }
+    }
+
+    impl From<&Countdown> for i32 {
+        fn from(mode: &Countdown) -> Self {
+            match mode {
+                Countdown::NONE => 0,
+                Countdown::NORMAL => 1,
+                Countdown::HALF => 2,
+                Countdown::DOUBLE => 3,
+            }
+        }
+    }
+
+    impl Display for Countdown {
+        fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+            write!(f, "{}", i32::from(self))
         }
     }
 }

@@ -44,12 +44,12 @@ impl FromStr for EditorSection {
     }
 }
 
-impl From<EditorSection> for String {
-    fn from(section: EditorSection) -> Self {
+impl ToString for EditorSection {
+    fn to_string(&self) -> String {
         let mut buf = String::new();
         let mut bookmarks = String::new();
 
-        for bookmark in section.bookmarks.iter() {
+        for bookmark in self.bookmarks.iter() {
             bookmarks.push_str(&bookmark.to_string());
             bookmarks.push(',');
         }
@@ -58,11 +58,11 @@ impl From<EditorSection> for String {
             bookmarks.pop();
         }
 
-        EditorSection::write_field_in(&mut buf, "Bookmarks", &bookmarks, true);
-        EditorSection::write_field_in(&mut buf, "DistanceSpacing", &section.distance_spacing, true);
-        EditorSection::write_field_in(&mut buf, "BeatDivisor", &section.beat_divisor, true);
-        EditorSection::write_field_in(&mut buf, "GridSize", &section.grid_size, true);
-        EditorSection::write_field_in(&mut buf, "TimelineZoom", &section.timeline_zoom, true);
+        Self::write_field_in(&mut buf, "Bookmarks", &bookmarks, true);
+        Self::write_field_in(&mut buf, "DistanceSpacing", &self.distance_spacing, true);
+        Self::write_field_in(&mut buf, "BeatDivisor", &self.beat_divisor, true);
+        Self::write_field_in(&mut buf, "GridSize", &self.grid_size, true);
+        Self::write_field_in(&mut buf, "TimelineZoom", &self.timeline_zoom, true);
 
         buf
     }

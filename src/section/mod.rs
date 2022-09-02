@@ -1,13 +1,16 @@
 pub mod difficulty;
 pub mod editor;
+pub mod events;
 pub mod general;
 pub mod metadata;
 
 use crate::error::BeatmapParseError;
+use crate::error::BeatmapParseError::CommentaryEntry;
 use std::fmt::{Debug, Display};
+use std::ops::{Deref, DerefMut};
 use std::str::FromStr;
 
-trait Section: Debug + Default + FromStr<Err = BeatmapParseError> + Into<String> {
+trait Section: Debug + Default + FromStr<Err = BeatmapParseError> + ToString {
     fn new() -> Self {
         Self::default()
     }
@@ -15,10 +18,12 @@ trait Section: Debug + Default + FromStr<Err = BeatmapParseError> + Into<String>
     fn parse(str: &str) -> Result<Self, BeatmapParseError> {
         Ok(Self::from_str(str)?)
     }
-    fn serialize(self) -> String {
-        self.into()
+    fn serialize(&self) -> String {
+        self.to_string()
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 trait SectionKeyValue: Section {
     fn get_field_name_value<T>(str: &Vec<&str>, field_name: &str) -> Result<T, BeatmapParseError>
@@ -71,3 +76,78 @@ trait SectionKeyValue: Section {
         Ok(String::from(value))
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+pub trait CommaListElement: Debug + Default + FromStr<Err = BeatmapParseError> + ToString {
+    fn new() -> Self {
+        Self::default()
+    }
+
+    fn parse(str: &str) -> Result<Self, BeatmapParseError> {
+        Ok(Self::from_str(str)?)
+    }
+    fn serialize(&self) -> String {
+        self.to_string()
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#[derive(Debug, Default)]
+pub struct CommaListOf<T: CommaListElement>(Vec<T>);
+
+impl<T: CommaListElement> Deref for CommaListOf<T> {
+    type Target = Vec<T>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<T: CommaListElement> DerefMut for CommaListOf<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl<T: CommaListElement> From<Vec<T>> for CommaListOf<T> {
+    fn from(vec: Vec<T>) -> Self {
+        Self { 0: vec }
+    }
+}
+
+impl<T: CommaListElement> FromStr for CommaListOf<T> {
+    type Err = BeatmapParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut list: Vec<T> = Vec::new();
+
+        let s: Vec<&str> = s.trim().split("\n").map(|x| x.trim()).collect();
+        for element in s {
+            let res = T::parse(element);
+            match res {
+                Ok(x) => list.push(x),
+                Err(CommentaryEntry) => (),
+                Err(x) => return Err(x),
+            }
+        }
+
+        Ok(list.into())
+    }
+}
+
+impl<T: CommaListElement> ToString for CommaListOf<T> {
+    fn to_string(&self) -> String {
+        let mut buf = String::new();
+
+        self.0.iter().for_each(|x| {
+            buf.push_str(&x.serialize());
+            buf.push_str("\n")
+        });
+
+        buf
+    }
+}
+
+impl<T: CommaListElement> Section for CommaListOf<T> {}

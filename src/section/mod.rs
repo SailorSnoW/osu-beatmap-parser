@@ -1,3 +1,4 @@
+pub mod colours;
 pub mod difficulty;
 pub mod editor;
 pub mod events;

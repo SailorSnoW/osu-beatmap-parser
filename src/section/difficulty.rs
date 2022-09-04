@@ -30,26 +30,21 @@ impl FromStr for Difficulty {
     }
 }
 
-impl From<Difficulty> for String {
-    fn from(section: Difficulty) -> Self {
+impl ToString for Difficulty {
+    fn to_string(&self) -> String {
         let mut buf = String::new();
 
-        Difficulty::write_field_in(&mut buf, "HPDrainRate", &section.hp_drain_rate, false);
-        Difficulty::write_field_in(&mut buf, "CircleSize", &section.circle_size, false);
-        Difficulty::write_field_in(
+        Self::write_field_in(&mut buf, "HPDrainRate", &self.hp_drain_rate, false);
+        Self::write_field_in(&mut buf, "CircleSize", &self.circle_size, false);
+        Self::write_field_in(
             &mut buf,
             "OverallDifficulty",
-            &section.overall_difficulty,
+            &self.overall_difficulty,
             false,
         );
-        Difficulty::write_field_in(&mut buf, "ApproachRate", &section.approach_rate, false);
-        Difficulty::write_field_in(
-            &mut buf,
-            "SliderMultiplier",
-            &section.slider_multiplier,
-            false,
-        );
-        Difficulty::write_field_in(&mut buf, "SliderTickRate", &section.slider_tick_rate, false);
+        Self::write_field_in(&mut buf, "ApproachRate", &self.approach_rate, false);
+        Self::write_field_in(&mut buf, "SliderMultiplier", &self.slider_multiplier, false);
+        Self::write_field_in(&mut buf, "SliderTickRate", &self.slider_tick_rate, false);
 
         buf
     }

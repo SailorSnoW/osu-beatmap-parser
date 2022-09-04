@@ -45,12 +45,12 @@ impl FromStr for Metadata {
     }
 }
 
-impl From<Metadata> for String {
-    fn from(section: Metadata) -> Self {
+impl ToString for Metadata {
+    fn to_string(&self) -> String {
         let mut buf = String::new();
         let mut tags = String::new();
 
-        for tag in section.tags.iter() {
+        for tag in self.tags.iter() {
             tags.push_str(tag);
             tags.push(' ')
         }
@@ -59,16 +59,16 @@ impl From<Metadata> for String {
             tags.pop();
         }
 
-        Metadata::write_field_in(&mut buf, "Title", &section.title, false);
-        Metadata::write_field_in(&mut buf, "TitleUnicode", &section.title_unicode, false);
-        Metadata::write_field_in(&mut buf, "Artist", &section.artist, false);
-        Metadata::write_field_in(&mut buf, "ArtistUnicode", &section.artist_unicode, false);
-        Metadata::write_field_in(&mut buf, "Creator", &section.creator, false);
-        Metadata::write_field_in(&mut buf, "Version", &section.version, false);
-        Metadata::write_field_in(&mut buf, "Source", &section.source, false);
-        Metadata::write_field_in(&mut buf, "Tags", &tags, false);
-        Metadata::write_field_in(&mut buf, "BeatmapID", &section.beatmap_id, false);
-        Metadata::write_field_in(&mut buf, "BeatmapSetID", &section.beatmap_set_id, false);
+        Self::write_field_in(&mut buf, "Title", &self.title, false);
+        Self::write_field_in(&mut buf, "TitleUnicode", &self.title_unicode, false);
+        Self::write_field_in(&mut buf, "Artist", &self.artist, false);
+        Self::write_field_in(&mut buf, "ArtistUnicode", &self.artist_unicode, false);
+        Self::write_field_in(&mut buf, "Creator", &self.creator, false);
+        Self::write_field_in(&mut buf, "Version", &self.version, false);
+        Self::write_field_in(&mut buf, "Source", &self.source, false);
+        Self::write_field_in(&mut buf, "Tags", &tags, false);
+        Self::write_field_in(&mut buf, "BeatmapID", &self.beatmap_id, false);
+        Self::write_field_in(&mut buf, "BeatmapSetID", &self.beatmap_set_id, false);
 
         buf
     }

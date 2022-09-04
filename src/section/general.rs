@@ -85,53 +85,38 @@ impl FromStr for GeneralSection {
     }
 }
 
-impl From<GeneralSection> for String {
+impl ToString for GeneralSection {
     #[allow(deprecated)]
-    fn from(section: GeneralSection) -> Self {
+    fn to_string(&self) -> String {
         let mut buf = String::new();
 
-        GeneralSection::write_field_in(&mut buf, "AudioFilename", &section.audio_filename, true);
-        GeneralSection::write_field_in(&mut buf, "AudioLeadIn", &section.audio_lead_in, true);
-        GeneralSection::write_field_in(&mut buf, "AudioHash", &section.audio_hash, true);
-        GeneralSection::write_field_in(&mut buf, "PreviewTime", &section.preview_time, true);
-        GeneralSection::write_field_in(&mut buf, "Countdown", &section.countdown, true);
-        GeneralSection::write_field_in(&mut buf, "SampleSet", &section.sample_set, true);
-        GeneralSection::write_field_in(&mut buf, "StackLeniency", &section.stack_leniency, true);
-        GeneralSection::write_field_in(&mut buf, "Mode", &section.mode, true);
-        GeneralSection::write_field_in(&mut buf, "LetterboxInBreaks", &section.lb_in_breaks, true);
-        GeneralSection::write_field_in(
+        Self::write_field_in(&mut buf, "AudioFilename", &self.audio_filename, true);
+        Self::write_field_in(&mut buf, "AudioLeadIn", &self.audio_lead_in, true);
+        Self::write_field_in(&mut buf, "AudioHash", &self.audio_hash, true);
+        Self::write_field_in(&mut buf, "PreviewTime", &self.preview_time, true);
+        Self::write_field_in(&mut buf, "Countdown", &self.countdown, true);
+        Self::write_field_in(&mut buf, "SampleSet", &self.sample_set, true);
+        Self::write_field_in(&mut buf, "StackLeniency", &self.stack_leniency, true);
+        Self::write_field_in(&mut buf, "Mode", &self.mode, true);
+        Self::write_field_in(&mut buf, "LetterboxInBreaks", &self.lb_in_breaks, true);
+        Self::write_field_in(
             &mut buf,
             "StoryFireInFront",
-            &section.story_fire_in_front,
+            &self.story_fire_in_front,
             true,
         );
-        GeneralSection::write_field_in(&mut buf, "UseSkinSprites", &section.use_skin_sprites, true);
-        GeneralSection::write_field_in(
-            &mut buf,
-            "AlwaysShowPlayfield",
-            &section.show_playfield,
-            true,
-        );
-        GeneralSection::write_field_in(&mut buf, "OverlayPosition", &section.overlay_pos, true);
-        GeneralSection::write_field_in(&mut buf, "SkinPreference", &section.skin_preference, true);
-        GeneralSection::write_field_in(&mut buf, "EpilepsyWarning", &section.epilepsy_warn, true);
-        GeneralSection::write_field_in(
-            &mut buf,
-            "CountdownOffset",
-            &section.countdown_offset,
-            true,
-        );
-        GeneralSection::write_field_in(&mut buf, "SpecialStyle", &section.special_style, true);
-        GeneralSection::write_field_in(
-            &mut buf,
-            "WidescreenStoryboard",
-            &section.widescreen_sb,
-            true,
-        );
-        GeneralSection::write_field_in(
+        Self::write_field_in(&mut buf, "UseSkinSprites", &self.use_skin_sprites, true);
+        Self::write_field_in(&mut buf, "AlwaysShowPlayfield", &self.show_playfield, true);
+        Self::write_field_in(&mut buf, "OverlayPosition", &self.overlay_pos, true);
+        Self::write_field_in(&mut buf, "SkinPreference", &self.skin_preference, true);
+        Self::write_field_in(&mut buf, "EpilepsyWarning", &self.epilepsy_warn, true);
+        Self::write_field_in(&mut buf, "CountdownOffset", &self.countdown_offset, true);
+        Self::write_field_in(&mut buf, "SpecialStyle", &self.special_style, true);
+        Self::write_field_in(&mut buf, "WidescreenStoryboard", &self.widescreen_sb, true);
+        Self::write_field_in(
             &mut buf,
             "SamplesMatchPlaybackRate",
-            &section.sample_match_pb_rate,
+            &self.sample_match_pb_rate,
             true,
         );
 

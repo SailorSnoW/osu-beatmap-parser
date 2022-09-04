@@ -3,6 +3,7 @@ pub mod editor;
 pub mod events;
 pub mod general;
 pub mod metadata;
+pub mod timing_points;
 
 use crate::error::BeatmapParseError;
 use crate::error::BeatmapParseError::CommentaryEntry;

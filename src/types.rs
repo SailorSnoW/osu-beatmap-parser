@@ -258,3 +258,71 @@ pub mod general {
         }
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+pub mod timing_points {
+    use crate::error::BeatmapParseError;
+    use bitflags::bitflags;
+    use std::str::FromStr;
+
+    #[derive(Debug, Default, PartialEq, Eq)]
+    pub enum SampleSet {
+        #[default]
+        Default,
+        Normal,
+        Soft,
+        Drum,
+    }
+
+    impl TryFrom<u8> for SampleSet {
+        type Error = ();
+
+        fn try_from(value: u8) -> Result<Self, Self::Error> {
+            match value {
+                0 => Ok(SampleSet::Default),
+                1 => Ok(SampleSet::Normal),
+                2 => Ok(SampleSet::Soft),
+                3 => Ok(SampleSet::Drum),
+                _ => Err(()),
+            }
+        }
+    }
+
+    impl FromStr for SampleSet {
+        type Err = BeatmapParseError;
+
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            let to_u8 = u8::from_str(s).unwrap();
+            Ok(to_u8.try_into().unwrap())
+        }
+    }
+
+    impl ToString for SampleSet {
+        fn to_string(&self) -> String {
+            match self {
+                SampleSet::Default => String::from("0"),
+                SampleSet::Normal => String::from("1"),
+                SampleSet::Soft => String::from("2"),
+                SampleSet::Drum => String::from("3"),
+            }
+        }
+    }
+
+    bitflags! {
+        /// Timing points have two extra effects that can be toggled using bits 0 and 3
+        /// (from least to most significant) in the effects integer.
+        pub struct Effects: u8 {
+            /// Whether or not kiai time is enabled
+            const KIAI = 0b00000001;
+            /// Whether or not the first barline is omitted in osu!taiko and osu!mania
+            const OMIT_BARLINE = 0b00000100;
+        }
+    }
+
+    impl Default for Effects {
+        fn default() -> Self {
+            Self { bits: 0 }
+        }
+    }
+}

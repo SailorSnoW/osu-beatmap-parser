@@ -2,7 +2,7 @@ use crate::error::BeatmapParseError;
 use crate::error::BeatmapParseError::InvalidFormat;
 use crate::section::CommaListElement;
 use crate::types::timing_points::*;
-use crate::types::OsuBool;
+use crate::types::{OsuBool, SampleSet};
 use std::str::FromStr;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

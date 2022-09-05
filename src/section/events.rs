@@ -43,6 +43,7 @@ impl EventType {
         }
     }
 
+    #[allow(dead_code)]
     pub fn try_into_inner<T: TryFrom<Self>>(self) -> Result<T, T::Error> {
         self.try_into()
     }

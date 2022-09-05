@@ -3,6 +3,7 @@ pub mod difficulty;
 pub mod editor;
 pub mod events;
 pub mod general;
+pub mod hit_objects;
 pub mod metadata;
 pub mod timing_points;
 

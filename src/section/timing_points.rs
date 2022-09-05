@@ -7,15 +7,29 @@ use std::str::FromStr;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Representation of a timing point.
+/// Each timing point influences a specified portion of the map, commonly called a "timing section"
 #[derive(Debug, Default)]
 pub struct TimingPoint {
+    /// Start time of the timing section, in milliseconds from the beginning of the beatmap's audio.
+    /// The end of the timing section is the next timing point's time (or never, if this is the last timing point).
     pub time: u32,
+    /// This property has two meanings:
+    /// - For uninherited timing points, the duration of a beat, in milliseconds.
+    /// - For inherited timing points, a negative inverse slider velocity multiplier, as a percentage.
     pub beat_length: f32,
+    /// Amount of beats in a measure. Inherited timing points ignore this property.
     pub meter: u32,
+    /// Default sample set for hit objects
     pub sample_set: SampleSet,
+    /// Custom sample index for hit objects.
+    /// `0` indicates osu!'s default hitsounds.
     pub sample_index: u32,
+    /// Volume percentage for hit objects.
     pub volume: u8,
+    /// Whether or not the timing point is uninherited.
     pub is_uninherited: OsuBool,
+    /// Bit flags that give the timing point extra effects. See the [effects section](crate::types::timing_points::Effects).
     pub effects: Effects,
 }
 

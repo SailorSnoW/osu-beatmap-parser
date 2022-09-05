@@ -313,7 +313,7 @@ pub mod timing_points {
         /// Timing points have two extra effects that can be toggled using bits 0 and 3
         /// (from least to most significant) in the effects integer.
         pub struct Effects: u8 {
-            /// Whether or not kiai time is enabled
+            /// Whether or not [kiai time](https://osu.ppy.sh/wiki/en/Gameplay/Kiai_time) is enabled
             const KIAI = 0b00000001;
             /// Whether or not the first barline is omitted in osu!taiko and osu!mania
             const OMIT_BARLINE = 0b00000100;

@@ -12,6 +12,7 @@ use std::fmt::{Debug, Display};
 use std::ops::{Deref, DerefMut};
 use std::str::FromStr;
 
+/// Trait representing a section in an osu file format.
 trait Section: Debug + Default + FromStr<Err = BeatmapParseError> + ToString {
     fn new() -> Self {
         Self::default()
@@ -27,6 +28,7 @@ trait Section: Debug + Default + FromStr<Err = BeatmapParseError> + ToString {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Trait representing a section in the format of `key:value` or `key: value` pairs.
 trait SectionKeyValue: Section {
     fn get_field_name_value<T>(str: &Vec<&str>, field_name: &str) -> Result<T, BeatmapParseError>
     where
@@ -81,6 +83,7 @@ trait SectionKeyValue: Section {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Trait representing an element of a section stored as a comma-separated list.
 pub trait CommaListElement: Debug + Default + FromStr<Err = BeatmapParseError> + ToString {
     fn new() -> Self {
         Self::default()
@@ -96,6 +99,7 @@ pub trait CommaListElement: Debug + Default + FromStr<Err = BeatmapParseError> +
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Represent a Section under the format of a comma-separated list.
 #[derive(Debug, Default)]
 pub struct CommaListOf<T: CommaListElement>(Vec<T>);
 

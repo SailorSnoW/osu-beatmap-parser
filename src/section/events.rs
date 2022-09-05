@@ -4,6 +4,8 @@ use crate::section::CommaListElement;
 use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
+/// Type of an event with the wrapped event params.
+/// Some events may be referred to by either a name or a number.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum EventType {
     Background(BackgroundParams),
@@ -60,8 +62,11 @@ impl Display for EventType {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct BackgroundParams {
+    /// Location of the background image relative to the beatmap directory.
     pub filename: String,
+    /// X offset in [osu! pixels](https://osu.ppy.sh/wiki/en/osupixel) from the centre of the screen.
     pub x_offset: i32,
+    /// Y offset in [osu! pixels](https://osu.ppy.sh/wiki/en/osupixel) from the centre of the screen.
     pub y_offset: i32,
 }
 
@@ -96,8 +101,11 @@ impl Display for BackgroundParams {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct VideoParams {
+    /// Location of the background image relative to the beatmap directory.
     pub filename: String,
+    /// X offset in [osu! pixels](https://osu.ppy.sh/wiki/en/osupixel) from the centre of the screen.
     pub x_offset: i32,
+    /// Y offset in [osu! pixels](https://osu.ppy.sh/wiki/en/osupixel) from the centre of the screen.
     pub y_offset: i32,
 }
 
@@ -132,6 +140,7 @@ impl Display for VideoParams {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct BreakParams {
+    /// End time of the break, in milliseconds from the beginning of the beatmap's audio.
     pub end_time: u32,
 }
 
@@ -160,9 +169,13 @@ impl Display for BreakParams {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Beatmap graphic event | TODO and storyboard
 #[derive(Debug, Default)]
 pub struct Event {
+    /// Start time of the event, in milliseconds from the beginning of the beatmap's audio.
+    /// For events that do not use a start time, the default is `0`.
     pub start_time: u32,
+    /// Type of the event with these params.
     pub event_params: EventType,
 }
 

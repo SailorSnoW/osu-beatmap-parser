@@ -5,6 +5,7 @@ use crate::types::OsuBool;
 use std::i32;
 use std::str::FromStr;
 
+/// General information about the beatmap
 #[derive(Default, Debug)]
 pub struct GeneralSection {
     /// Location of the audio file relative to the current folder

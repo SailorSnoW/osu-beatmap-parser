@@ -2,17 +2,29 @@ use crate::error::BeatmapParseError;
 use crate::section::{Section, SectionKeyValue};
 use std::str::FromStr;
 
+/// [Information](https://osu.ppy.sh/wiki/en/Client/Beatmap_editor/Song_Setup#song-and-map-metadata)
+/// used to identify the beatmap
 #[derive(Default, Debug)]
 pub struct Metadata {
+    /// Romanised song title
     pub title: String,
+    /// Song title
     pub title_unicode: String,
+    /// Romanised song artist
     pub artist: String,
+    /// Song artist
     pub artist_unicode: String,
+    /// Beatmap creator
     pub creator: String,
+    /// Difficulty name
     pub version: String,
+    /// 	Original media the song was produced for
     pub source: String,
+    /// Search terms
     pub tags: Vec<String>,
+    /// Difficulty ID
     pub beatmap_id: i32,
+    /// Beatmap ID
     pub beatmap_set_id: i32,
 }
 

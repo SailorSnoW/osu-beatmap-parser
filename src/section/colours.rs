@@ -44,6 +44,7 @@ impl ToString for ColourType {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Representation of the red, green, and blue components of the colours.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Rgb {
     pub red: u8,
@@ -116,10 +117,14 @@ impl CommaListElement for Colour {}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Combo and skin colours.
 #[derive(Debug, Default)]
 pub struct Colours {
+    /// Additive combo colours
     pub combos: [Option<Colour>; 8],
+    /// Additive slider track colour
     pub slider_track_override: Option<Colour>,
+    /// Slider border colour
     pub slider_border: Option<Colour>,
 }
 

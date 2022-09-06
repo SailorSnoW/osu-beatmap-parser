@@ -3,6 +3,7 @@ use crate::error::BeatmapParseError::InvalidFormat;
 use crate::section::CommaListElement;
 use crate::types::SampleSet;
 use bitflags::bitflags;
+use regex::Regex;
 use std::str::FromStr;
 
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -336,9 +337,9 @@ impl FromStr for SliderParams {
 
                 x
             },
-            slides: u32::from_str(s[1]).map_err(|_| ())?,
-            length: f32::from_str(s[2]).map_err(|_| ())?,
-            edge_sounds: EdgeSounds::from_str(s[3]).map_err(|_| ())?,
+            slides: u32::from_str(s.get(1).unwrap_or(&"")).map_err(|_| ())?,
+            length: f32::from_str(s.get(2).unwrap_or(&"")).map_err(|_| ())?,
+            edge_sounds: EdgeSounds::from_str(s.get(3).unwrap_or(&"")).unwrap_or_default(),
         })
     }
 }
@@ -507,23 +508,36 @@ impl FromStr for HitObject {
             }
             HitObjectType::Slider(ref mut _params) => {
                 let mut vec_splitted_params: Vec<&str> = split[5].split_inclusive(",").collect();
-                vec_splitted_params.pop();
-                let mut string_params: String = vec_splitted_params.drain(0..).collect();
-                string_params.pop();
 
-                let hit_sample: &str = split[5].split(",").last().ok_or_else(|| InvalidFormat {
-                    field: "hit_sample".to_string(),
-                })?;
+                // verify that the last element is the hit sample and remove it if yes
+                let re: Regex = Regex::new(r"([0-9]+:[0-9]+:[0-9]+:[0-9]+:)").unwrap();
+                if re.is_match(vec_splitted_params.last().unwrap_or(&"")) {
+                    vec_splitted_params.pop();
+                }
+                // verify that the last characters is a ',' and remove it if yes
+                let mut string_params: String = vec_splitted_params.drain(0..).collect();
+                if string_params.chars().last().unwrap() == ',' {
+                    string_params.pop();
+                }
 
                 *_params = SliderParams::from_str(&string_params).map_err(|_| InvalidFormat {
                     field: "object_params".to_string(),
                 })?;
-                hit_object.hit_sample =
-                    HitSample::from_str(hit_sample).map_err(|_| InvalidFormat {
-                        field: "hit_sample".to_string(),
-                    })?;
 
-                Ok(hit_object)
+                let hit_sample = split.get(6);
+                match hit_sample {
+                    Some(hit_sample) => {
+                        hit_object.hit_sample =
+                            HitSample::from_str(hit_sample).map_err(|_| InvalidFormat {
+                                field: "hit_sample".to_string(),
+                            })?;
+                        Ok(hit_object)
+                    }
+                    None => {
+                        hit_object.hit_sample = HitSample::default();
+                        Ok(hit_object)
+                    }
+                }
             }
             HitObjectType::Spinner(ref mut _params) => {
                 let splitted = split[5].split_once(",").ok_or_else(|| InvalidFormat {
@@ -533,11 +547,8 @@ impl FromStr for HitObject {
                 *_params = SpinnerParams::from_str(splitted.0).map_err(|_| InvalidFormat {
                     field: "object_params".to_string(),
                 })?;
-                hit_object.hit_sample =
-                    HitSample::from_str(splitted.1).map_err(|_| InvalidFormat {
-                        field: "hit_sample".to_string(),
-                    })?;
 
+                hit_object.hit_sample = HitSample::from_str(splitted.1).unwrap_or_default();
                 Ok(hit_object)
             }
             HitObjectType::ManiaHold(ref mut _params) => {
@@ -548,10 +559,7 @@ impl FromStr for HitObject {
                 *_params = ManiaHoldParams::from_str(splitted.0).map_err(|_| InvalidFormat {
                     field: "object_params".to_string(),
                 })?;
-                hit_object.hit_sample =
-                    HitSample::from_str(splitted.1).map_err(|_| InvalidFormat {
-                        field: "hit_sample".to_string(),
-                    })?;
+                hit_object.hit_sample = HitSample::from_str(splitted.1).unwrap_or_default();
 
                 Ok(hit_object)
             }

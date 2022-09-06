@@ -5,7 +5,7 @@ use std::str::FromStr;
 /// [Information](https://osu.ppy.sh/wiki/en/Client/Beatmap_editor/Song_Setup#song-and-map-metadata)
 /// used to identify the beatmap
 #[derive(Default, Debug)]
-pub struct Metadata {
+pub struct MetadataSection {
     /// Romanised song title
     pub title: String,
     /// Song title
@@ -28,11 +28,11 @@ pub struct Metadata {
     pub beatmap_set_id: i32,
 }
 
-impl Section for Metadata {}
+impl Section for MetadataSection {}
 
-impl SectionKeyValue for Metadata {}
+impl SectionKeyValue for MetadataSection {}
 
-impl FromStr for Metadata {
+impl FromStr for MetadataSection {
     type Err = BeatmapParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -57,7 +57,7 @@ impl FromStr for Metadata {
     }
 }
 
-impl ToString for Metadata {
+impl ToString for MetadataSection {
     fn to_string(&self) -> String {
         let mut buf = String::new();
         let mut tags = String::new();
@@ -88,7 +88,7 @@ impl ToString for Metadata {
 
 #[cfg(test)]
 mod tests {
-    use crate::section::metadata::Metadata;
+    use crate::section::metadata::MetadataSection;
     use crate::section::Section;
     use std::str::FromStr;
 
@@ -104,7 +104,7 @@ BeatmapSetID:387784
 ";
     #[test]
     fn parse_metadata() {
-        let metadata = Metadata::from_str(TEST_SECTION).unwrap();
+        let metadata = MetadataSection::from_str(TEST_SECTION).unwrap();
 
         assert_eq!(metadata.title, "Marble Soda");
         assert_eq!(metadata.title_unicode, "Marble Soda");
@@ -120,7 +120,7 @@ BeatmapSetID:387784
 
     #[test]
     fn serialize_metadata() {
-        let mut metadata = Metadata::new();
+        let mut metadata = MetadataSection::new();
         metadata.title = String::from("Marble Soda");
         metadata.title_unicode = String::from("Marble Soda");
         metadata.artist = String::from("Shawn Wasabi");

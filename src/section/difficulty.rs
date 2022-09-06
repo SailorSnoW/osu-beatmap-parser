@@ -4,7 +4,7 @@ use std::str::FromStr;
 
 /// [Difficulty settings](https://osu.ppy.sh/wiki/en/Client/Beatmap_editor/Song_Setup#difficulty)
 #[derive(Debug, Default)]
-pub struct Difficulty {
+pub struct DifficultySection {
     /// HP setting (0–10)
     hp_drain_rate: f32,
     /// CS setting (0–10)
@@ -20,7 +20,7 @@ pub struct Difficulty {
     slider_tick_rate: f32,
 }
 
-impl FromStr for Difficulty {
+impl FromStr for DifficultySection {
     type Err = BeatmapParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -38,7 +38,7 @@ impl FromStr for Difficulty {
     }
 }
 
-impl ToString for Difficulty {
+impl ToString for DifficultySection {
     fn to_string(&self) -> String {
         let mut buf = String::new();
 
@@ -58,12 +58,12 @@ impl ToString for Difficulty {
     }
 }
 
-impl Section for Difficulty {}
-impl SectionKeyValue for Difficulty {}
+impl Section for DifficultySection {}
+impl SectionKeyValue for DifficultySection {}
 
 #[cfg(test)]
 mod tests {
-    use crate::section::difficulty::Difficulty;
+    use crate::section::difficulty::DifficultySection;
     use crate::section::Section;
 
     const TEST_SECTION: &'static str = "HPDrainRate:5
@@ -76,7 +76,7 @@ SliderTickRate:1
 
     #[test]
     fn parse_difficulty() {
-        let difficulty = Difficulty::parse(TEST_SECTION).unwrap();
+        let difficulty = DifficultySection::parse(TEST_SECTION).unwrap();
 
         assert_eq!(difficulty.hp_drain_rate, 5.0);
         assert_eq!(difficulty.circle_size, 4.0);
@@ -88,7 +88,7 @@ SliderTickRate:1
 
     #[test]
     fn serialize_difficulty() {
-        let mut difficulty = Difficulty::new();
+        let mut difficulty = DifficultySection::new();
         difficulty.hp_drain_rate = 5.0;
         difficulty.circle_size = 4.0;
         difficulty.overall_difficulty = 6.0;

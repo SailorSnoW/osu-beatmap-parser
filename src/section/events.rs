@@ -170,7 +170,7 @@ impl Display for BreakParams {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Beatmap graphic event | TODO and storyboard
+/// Beatmap graphic event
 #[derive(Debug, Default)]
 pub struct Event {
     /// Start time of the event, in milliseconds from the beginning of the beatmap's audio.
@@ -186,6 +186,21 @@ impl FromStr for Event {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.starts_with("//") {
             return Err(BeatmapParseError::CommentaryEntry);
+        }
+
+        if s.starts_with("Sprite")
+            || s.starts_with("Animation")
+            || s.starts_with("F")
+            || s.starts_with("M")
+            || s.starts_with("MX")
+            || s.starts_with("MY")
+            || s.starts_with("S")
+            || s.starts_with("V")
+            || s.starts_with("R")
+            || s.starts_with("C")
+            || s.starts_with("P")
+        {
+            return Err(BeatmapParseError::StoryboardEntry);
         }
 
         let s: Vec<&str> = s.trim().split(",").map(|x| x.trim()).collect();

@@ -9,7 +9,12 @@ use crate::section::metadata::MetadataSection;
 use crate::section::timing_points::TimingPoint;
 use crate::section::CommaListOf;
 use crate::BeatmapParseError::SectionNotFound;
+use std::error::Error;
+use std::fs::File;
+use std::io::{Read, Write};
+use std::path::Path;
 use std::str::FromStr;
+use std::{fs, io};
 
 mod error;
 mod section;
@@ -34,6 +39,30 @@ impl BeatmapLevel {
 
     pub fn parse(str: &str) -> Result<Self, BeatmapParseError> {
         Self::from_str(str)
+    }
+    pub fn open(path: &Path) -> Result<Self, Box<dyn Error>> {
+        Ok(path.try_into()?)
+    }
+    pub fn save(&self, path: &Path) -> io::Result<()> {
+        Ok(fs::write(path, self.to_string())?)
+    }
+}
+
+impl TryFrom<File> for BeatmapLevel {
+    type Error = Box<dyn Error>;
+
+    fn try_from(mut value: File) -> Result<Self, Self::Error> {
+        let buf = &mut String::new();
+        value.read_to_string(buf)?;
+        Ok(BeatmapLevel::from_str(buf)?)
+    }
+}
+
+impl TryFrom<&Path> for BeatmapLevel {
+    type Error = Box<dyn Error>;
+
+    fn try_from(value: &Path) -> Result<Self, Self::Error> {
+        Ok(File::open(value)?.try_into()?)
     }
 }
 
@@ -112,22 +141,50 @@ impl FromStr for BeatmapLevel {
     }
 }
 
+impl ToString for BeatmapLevel {
+    fn to_string(&self) -> String {
+        format! {"osu file format v14\n\
+        \n\
+        [General]\n\
+        {}\n\
+        [Editor]\n\
+        {}\n\
+        [Metadata]\n\
+        {}\n\
+        [Difficulty]\n\
+        {}\n\
+        [Events]\n\
+        {}\n\
+        [TimingPoints]\n\
+        {}\n\
+        [Colours]\n\
+        {}\n\
+        [HitObjects]\n\
+        {}", self.general.to_string(), self.editor.to_string(), self.metadata.to_string(),
+        self.difficulty.to_string(), self.events.to_string(), self.timing_points.to_string(),
+        self.colours.to_string(), self.hit_objects.to_string()}
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::BeatmapLevel;
     use std::fs::File;
     use std::io::Read;
+    use std::path::Path;
 
     const TEST_BEATMAP_LEVEL_PATH: &'static str = "./assets/examples/test.osu";
+    const OUTPUT_BEATMAP_LEVEL_PATH: &'static str = "./assets/examples/test_output.osu";
 
     #[test]
-    fn parse_beatmap_level() {
+    fn parse_save_beatmap_level() {
         let mut file = File::open(TEST_BEATMAP_LEVEL_PATH).unwrap();
         let buf = &mut String::new();
         file.read_to_string(buf).unwrap();
 
         let beatmap_level = BeatmapLevel::parse(buf).unwrap();
-
-        println!("{:?}", beatmap_level)
+        beatmap_level
+            .save(&Path::new(OUTPUT_BEATMAP_LEVEL_PATH))
+            .unwrap();
     }
 }

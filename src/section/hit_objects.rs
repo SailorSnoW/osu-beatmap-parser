@@ -547,20 +547,9 @@ impl FromStr for HitObject {
                 *_params = SpinnerParams::from_str(splitted.0).map_err(|_| InvalidFormat {
                     field: "object_params".to_string(),
                 })?;
-                let hit_sample = split.get(6);
-                match hit_sample {
-                    Some(hit_sample) => {
-                        hit_object.hit_sample =
-                            HitSample::from_str(hit_sample).map_err(|_| InvalidFormat {
-                                field: "hit_sample".to_string(),
-                            })?;
-                        Ok(hit_object)
-                    }
-                    None => {
-                        hit_object.hit_sample = HitSample::default();
-                        Ok(hit_object)
-                    }
-                }
+
+                hit_object.hit_sample = HitSample::from_str(splitted.1).unwrap_or_default();
+                Ok(hit_object)
             }
             HitObjectType::ManiaHold(ref mut _params) => {
                 let splitted = split[5].split_once(":").ok_or_else(|| InvalidFormat {
@@ -570,10 +559,7 @@ impl FromStr for HitObject {
                 *_params = ManiaHoldParams::from_str(splitted.0).map_err(|_| InvalidFormat {
                     field: "object_params".to_string(),
                 })?;
-                hit_object.hit_sample =
-                    HitSample::from_str(splitted.1).map_err(|_| InvalidFormat {
-                        field: "hit_sample".to_string(),
-                    })?;
+                hit_object.hit_sample = HitSample::from_str(splitted.1).unwrap_or_default();
 
                 Ok(hit_object)
             }

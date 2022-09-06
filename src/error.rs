@@ -14,6 +14,8 @@ pub enum BeatmapParseError {
     InvalidFormat { field: String },
     #[error("Commentary line")]
     CommentaryEntry,
+    #[error("Storyboard related line, not supported for the moment")]
+    StoryboardEntry,
     #[error("The section seems to not be present in the beatmap file")]
     SectionNotFound { section: String },
 }

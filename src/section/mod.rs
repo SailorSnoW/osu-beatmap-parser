@@ -8,7 +8,6 @@ pub mod metadata;
 pub mod timing_points;
 
 use crate::error::BeatmapParseError;
-use crate::error::BeatmapParseError::CommentaryEntry;
 use std::fmt::{Debug, Display};
 use std::ops::{Deref, DerefMut};
 use std::str::FromStr;
@@ -135,7 +134,8 @@ impl<T: CommaListElement> FromStr for CommaListOf<T> {
             let res = T::parse(element);
             match res {
                 Ok(x) => list.push(x),
-                Err(CommentaryEntry) => (),
+                Err(BeatmapParseError::CommentaryEntry) => (),
+                Err(BeatmapParseError::StoryboardEntry) => (),
                 Err(x) => return Err(x),
             }
         }

@@ -1,9 +1,11 @@
 [package]
 name = "osu-beatmap-parser"
+description = "Rust library to parse .osu beatmap file and manage beatmap data"
 version = "0.14.0"
+authors = ["Sailor SnoW <snxwin@pm.me>"]
+repository = "https://github.com/SailorSnoW/osu-beatmap-parser/"
+license =  "MIT/Apache-2.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 thiserror = "1.0.32"

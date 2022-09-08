@@ -286,6 +286,7 @@ impl Default for HitSoundFlag {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Extra parameters representing a Slider Hit Object.
 #[derive(Debug, Default, PartialEq)]
 pub struct SliderParams {
     pub slider_type: SliderType,
@@ -359,6 +360,7 @@ impl ToString for SliderParams {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Extra parameters representing a Spinner Hit Object.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct SpinnerParams {
     pub end_time: u32,
@@ -393,6 +395,7 @@ impl ToString for SpinnerParams {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Extra parameters representing a Mania Hold Hit Object.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct ManiaHoldParams {
     pub end_time: u32,
@@ -427,15 +430,24 @@ impl ToString for ManiaHoldParams {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Representation of an Hit Object.
 #[derive(Debug, Default, PartialEq)]
 pub struct HitObject {
+    /// X Position in osu! pixels of the object.
     pub x: i32,
+    /// Y Position in osu! pixels of the object.
     pub y: i32,
+    /// Time when the object is to be hit, in milliseconds from the beginning of the beatmap's audio.
     pub time: u32,
+    /// Type and extra parameters specific to the object's type.
     pub object_params: HitObjectType,
+    /// Whether the object is a new combo or not
     pub new_combo: bool,
+    /// How many combo colours to skip if it's a new combo
     pub combo_skip: u8,
+    /// flags indicating the hitsound applied to the object
     pub hit_sound: HitSoundFlag,
+    /// Information about which samples are played when the object is hit.
     pub hit_sample: HitSample,
 }
 

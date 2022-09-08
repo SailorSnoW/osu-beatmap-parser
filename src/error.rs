@@ -6,12 +6,18 @@ pub enum MapTypeError {
     UnexpectedBoolValue,
 }
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq, Eq)]
 pub enum BeatmapParseError {
     #[error("Tried to read a data which isn't a 'key:value' pair")]
     NotValidPair,
     #[error("Invalid data format for the following field: {field}")]
     InvalidFormat { field: String },
+    #[error("Commentary line")]
+    CommentaryEntry,
+    #[error("Storyboard related line, not supported for the moment")]
+    StoryboardEntry,
+    #[error("The section seems to not be present in the beatmap file")]
+    SectionNotFound { section: String },
 }
 
 #[derive(Error, Debug)]
@@ -28,4 +34,10 @@ pub enum GeneralError {
     UnexpectedOverlayPosValue { value: String },
     #[error("Received unexpected value to parse to a SampleSet value, got {value}, expected 'Normal', 'Soft' or 'Drum'")]
     UnexpectedSampleSetValue { value: String },
+}
+
+#[derive(Error, Debug)]
+pub enum EventsError {
+    #[error("Tried to read an unknown type in the Events section, got {value}, expected 'Background', 'Video', 'Break' or 0-1-2.")]
+    UnexpectedEventType { value: String },
 }

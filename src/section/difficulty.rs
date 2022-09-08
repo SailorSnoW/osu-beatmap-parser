@@ -2,17 +2,25 @@ use crate::error::BeatmapParseError;
 use crate::section::{Section, SectionKeyValue};
 use std::str::FromStr;
 
+/// [Difficulty settings](https://osu.ppy.sh/wiki/en/Client/Beatmap_editor/Song_Setup#difficulty)
 #[derive(Debug, Default)]
-pub struct Difficulty {
+pub struct DifficultySection {
+    /// HP setting (0–10)
     hp_drain_rate: f32,
+    /// CS setting (0–10)
     circle_size: f32,
+    /// OD setting (0–10)
     overall_difficulty: f32,
+    /// AR setting (0–10)
     approach_rate: f32,
+    /// Base slider velocity in hundreds of
+    /// [osu! pixels](https://osu.ppy.sh/wiki/en/osupixel) per beat
     slider_multiplier: f32,
+    /// Amount of slider ticks per beat
     slider_tick_rate: f32,
 }
 
-impl FromStr for Difficulty {
+impl FromStr for DifficultySection {
     type Err = BeatmapParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -30,37 +38,32 @@ impl FromStr for Difficulty {
     }
 }
 
-impl From<Difficulty> for String {
-    fn from(section: Difficulty) -> Self {
+impl ToString for DifficultySection {
+    fn to_string(&self) -> String {
         let mut buf = String::new();
 
-        Difficulty::write_field_in(&mut buf, "HPDrainRate", &section.hp_drain_rate, false);
-        Difficulty::write_field_in(&mut buf, "CircleSize", &section.circle_size, false);
-        Difficulty::write_field_in(
+        Self::write_field_in(&mut buf, "HPDrainRate", &self.hp_drain_rate, false);
+        Self::write_field_in(&mut buf, "CircleSize", &self.circle_size, false);
+        Self::write_field_in(
             &mut buf,
             "OverallDifficulty",
-            &section.overall_difficulty,
+            &self.overall_difficulty,
             false,
         );
-        Difficulty::write_field_in(&mut buf, "ApproachRate", &section.approach_rate, false);
-        Difficulty::write_field_in(
-            &mut buf,
-            "SliderMultiplier",
-            &section.slider_multiplier,
-            false,
-        );
-        Difficulty::write_field_in(&mut buf, "SliderTickRate", &section.slider_tick_rate, false);
+        Self::write_field_in(&mut buf, "ApproachRate", &self.approach_rate, false);
+        Self::write_field_in(&mut buf, "SliderMultiplier", &self.slider_multiplier, false);
+        Self::write_field_in(&mut buf, "SliderTickRate", &self.slider_tick_rate, false);
 
         buf
     }
 }
 
-impl Section for Difficulty {}
-impl SectionKeyValue for Difficulty {}
+impl Section for DifficultySection {}
+impl SectionKeyValue for DifficultySection {}
 
 #[cfg(test)]
 mod tests {
-    use crate::section::difficulty::Difficulty;
+    use crate::section::difficulty::DifficultySection;
     use crate::section::Section;
 
     const TEST_SECTION: &'static str = "HPDrainRate:5
@@ -73,7 +76,7 @@ SliderTickRate:1
 
     #[test]
     fn parse_difficulty() {
-        let difficulty = Difficulty::parse(TEST_SECTION).unwrap();
+        let difficulty = DifficultySection::parse(TEST_SECTION).unwrap();
 
         assert_eq!(difficulty.hp_drain_rate, 5.0);
         assert_eq!(difficulty.circle_size, 4.0);
@@ -85,7 +88,7 @@ SliderTickRate:1
 
     #[test]
     fn serialize_difficulty() {
-        let mut difficulty = Difficulty::new();
+        let mut difficulty = DifficultySection::new();
         difficulty.hp_drain_rate = 5.0;
         difficulty.circle_size = 4.0;
         difficulty.overall_difficulty = 6.0;

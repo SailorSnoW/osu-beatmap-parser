@@ -18,7 +18,7 @@ use std::{fs, io};
 
 mod error;
 mod section;
-mod types;
+pub mod types;
 
 #[derive(Debug, Default)]
 pub struct BeatmapLevel {

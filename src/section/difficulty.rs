@@ -6,18 +6,18 @@ use std::str::FromStr;
 #[derive(Debug, Default)]
 pub struct DifficultySection {
     /// HP setting (0–10)
-    hp_drain_rate: f32,
+    pub hp_drain_rate: f32,
     /// CS setting (0–10)
-    circle_size: f32,
+    pub circle_size: f32,
     /// OD setting (0–10)
-    overall_difficulty: f32,
+    pub overall_difficulty: f32,
     /// AR setting (0–10)
-    approach_rate: f32,
+    pub approach_rate: f32,
     /// Base slider velocity in hundreds of
     /// [osu! pixels](https://osu.ppy.sh/wiki/en/osupixel) per beat
-    slider_multiplier: f32,
+    pub slider_multiplier: f32,
     /// Amount of slider ticks per beat
-    slider_tick_rate: f32,
+    pub slider_tick_rate: f32,
 }
 
 impl FromStr for DifficultySection {

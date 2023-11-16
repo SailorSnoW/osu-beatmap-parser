@@ -17,7 +17,7 @@ use std::str::FromStr;
 use std::{fs, io};
 
 mod error;
-mod section;
+pub mod section;
 pub mod types;
 
 #[derive(Debug, Default)]

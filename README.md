@@ -15,16 +15,16 @@ This library was made according how a .osu beatmap file is structured explained 
 ### Parsing a beatmap file (.osu)
 ```rust
 use osu_beatmap_parser::BeatmapLevel;
+use std::path::Path;
 
 fn main() {
-    let beatmap_path = Path::from("./assets/examples/test.osu");
+    let beatmap_path = Path::new("./assets/examples/test.osu");
+    let mut beatmap: BeatmapLevel = BeatmapLevel::open(&beatmap_path).unwrap();
 
-    let beatmap: BeatmapLevel = BeatmapLevel::open(&beatmap_path).unwrap();
-    
     // Editing the approach rate
-    beatmap.difficulty.approach_rate = 9;
-    
+    beatmap.difficulty.approach_rate = 9.;
+
     // Getting all the hit objects
-    let objects = beatmap.hitobjects;
+    let objects = beatmap.hit_objects;
 }
 ```

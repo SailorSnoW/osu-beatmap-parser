@@ -9,9 +9,12 @@ use crate::section::metadata::MetadataSection;
 use crate::section::timing_points::TimingPoint;
 use crate::section::CommaListOf;
 use crate::BeatmapParseError::SectionNotFound;
+
+use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
+use std::ops::Range;
 use std::path::Path;
 use std::str::FromStr;
 use std::{fs, io};
@@ -66,77 +69,102 @@ impl TryFrom<&Path> for BeatmapLevel {
     }
 }
 
+struct Section {
+    name: String,
+    range: Option<Range<usize>>,
+}
+
 impl FromStr for BeatmapLevel {
     type Err = BeatmapParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let general_index = s.find("[General]").ok_or_else(|| SectionNotFound {
-            section: "General".to_string(),
-        })?;
-        let editor_index = s.find("[Editor]").ok_or_else(|| SectionNotFound {
-            section: "Editor".to_string(),
-        })?;
-        let metadata_index = s.find("[Metadata]").ok_or_else(|| SectionNotFound {
-            section: "Metadata".to_string(),
-        })?;
-        let difficulty_index = s.find("[Difficulty]").ok_or_else(|| SectionNotFound {
-            section: "Difficulty".to_string(),
-        })?;
-        let events_index = s.find("[Events]").ok_or_else(|| SectionNotFound {
-            section: "Events".to_string(),
-        })?;
-        let timing_points_index = s.find("[TimingPoints]").ok_or_else(|| SectionNotFound {
-            section: "TimingPoints".to_string(),
-        })?;
-        let colours_index = s.find("[Colours]").ok_or_else(|| SectionNotFound {
-            section: "Colours".to_string(),
-        })?;
-        let hit_objects_index = s.find("[HitObjects]").ok_or_else(|| SectionNotFound {
-            section: "HitObjects".to_string(),
-        })?;
+        // Section names and whether they are mandatory
+        // Has to be in order
+        let sections = vec![
+            ("[General]", true),
+            ("[Editor]", true),
+            ("[Metadata]", true),
+            ("[Difficulty]", true),
+            ("[Events]", true),
+            ("[TimingPoints]", false),
+            ("[Colours]", false),
+            ("[HitObjects]", true),
+        ];
 
-        let general_str = s[general_index..editor_index]
-            .strip_prefix("[General]")
-            .unwrap()
-            .trim();
-        let editor_str = s[editor_index..metadata_index]
-            .strip_prefix("[Editor]")
-            .unwrap()
-            .trim();
-        let metadata_str = s[metadata_index..difficulty_index]
-            .strip_prefix("[Metadata]")
-            .unwrap()
-            .trim();
-        let difficulty_str = s[difficulty_index..events_index]
-            .strip_prefix("[Difficulty]")
-            .unwrap()
-            .trim();
-        let events_str = s[events_index..timing_points_index]
-            .strip_prefix("[Events]")
-            .unwrap()
-            .trim();
-        let timing_points_str = s[timing_points_index..colours_index]
-            .strip_prefix("[TimingPoints]")
-            .unwrap()
-            .trim();
-        let colours_str = s[colours_index..hit_objects_index]
-            .strip_prefix("[Colours]")
-            .unwrap()
-            .trim();
-        let hit_objects_str = s[hit_objects_index..]
-            .strip_prefix("[HitObjects]")
-            .unwrap()
-            .trim();
+        // This next section checks if all mandatory sections are present
+        // and it maps the range based on if the section is
+        let mut processed_sections = Vec::new();
+
+        let mut previous_index_option = None;
+        let mut previous_section_name = "";
+        for (section_name, mandatory) in sections {
+            match s.find(section_name) {
+                None => {
+                    if mandatory {
+                        return Err(SectionNotFound {
+                            section: section_name.to_string(),
+                        });
+                    } else {
+                        processed_sections.push(Section {
+                            name: section_name.to_string(),
+                            range: None,
+                        });
+                    }
+                }
+                Some(index) => {
+                    if let Some(previous_index) = previous_index_option {
+                        processed_sections.push(Section {
+                            name: previous_section_name.to_string(),
+                            range: Some(previous_index..index),
+                        });
+                    }
+                    previous_index_option = Some(index);
+                    previous_section_name = section_name;
+                }
+            }
+        }
+        // Adding last section
+        processed_sections.push(Section {
+            name: previous_section_name.to_string(),
+            range: Some(previous_index_option.unwrap()..s.len()),
+        });
+
+        // Stripping sections and moving them to a hashmap
+        let mut section_strings = HashMap::new();
+        processed_sections.into_iter().for_each(|section| {
+            let section_str = section
+                .range
+                .map(|range| s[range].strip_prefix(&section.name).unwrap().trim());
+            section_strings.insert(section.name, section_str);
+        });
 
         Ok(BeatmapLevel {
-            general: general_str.parse()?,
-            editor: editor_str.parse()?,
-            metadata: metadata_str.parse()?,
-            difficulty: difficulty_str.parse()?,
-            events: events_str.parse()?,
-            timing_points: timing_points_str.parse()?,
-            colours: colours_str.parse()?,
-            hit_objects: hit_objects_str.parse()?,
+            general: section_strings.get("[General]").unwrap().unwrap().parse()?,
+            editor: section_strings.get("[Editor]").unwrap().unwrap().parse()?,
+            metadata: section_strings
+                .get("[Metadata]")
+                .unwrap()
+                .unwrap()
+                .parse()?,
+            difficulty: section_strings
+                .get("[Difficulty]")
+                .unwrap()
+                .unwrap()
+                .parse()?,
+            events: section_strings.get("[Events]").unwrap().unwrap().parse()?,
+            timing_points: match section_strings.get("[TimingPoints]").unwrap() {
+                Some(timing_str) => timing_str.parse()?,
+                None => CommaListOf::from(Vec::new()),
+            },
+            colours: match section_strings.get("[Colours]").unwrap() {
+                Some(colour_str) => colour_str.parse()?,
+                None => Colours::default(),
+            },
+            hit_objects: section_strings
+                .get("[HitObjects]")
+                .unwrap()
+                .unwrap()
+                .parse()?,
         })
     }
 }

@@ -4,7 +4,7 @@ description = "Rust library to parse .osu beatmap file and manage beatmap data"
 version = "0.14.0"
 authors = ["Sailor SnoW <snxwin@pm.me>"]
 repository = "https://github.com/SailorSnoW/osu-beatmap-parser/"
-license =  "MIT/Apache-2.0"
+license = "MIT/Apache-2.0"
 edition = "2021"
 
 [dependencies]

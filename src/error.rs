@@ -18,6 +18,8 @@ pub enum BeatmapParseError {
     StoryboardEntry,
     #[error("The section seems to not be present in the beatmap file")]
     SectionNotFound { section: String },
+    #[error("The section is empty")]
+    EmptySection { section: String },
 }
 
 #[derive(Error, Debug)]

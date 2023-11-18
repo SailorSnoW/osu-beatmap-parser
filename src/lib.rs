@@ -109,7 +109,6 @@ impl FromStr for BeatmapLevel {
                             name: section_name.to_string(),
                             range: None,
                         });
-                        continue;
                     }
                 }
                 Some(index) => {
@@ -118,13 +117,9 @@ impl FromStr for BeatmapLevel {
                             name: previous_section_name.to_string(),
                             range: Some(previous_index..index),
                         });
-                        previous_index_option = Some(index);
-                        previous_section_name = section_name;
-                    } else {
-                        previous_index_option = Some(index);
-                        previous_section_name = section_name;
-                        continue;
                     }
+                    previous_index_option = Some(index);
+                    previous_section_name = section_name;
                 }
             }
         }

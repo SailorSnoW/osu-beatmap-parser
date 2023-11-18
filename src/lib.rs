@@ -28,7 +28,8 @@ pub struct BeatmapLevel {
     pub difficulty: DifficultySection,
     pub events: CommaListOf<Event>,
     pub timing_points: CommaListOf<TimingPoint>,
-    pub colours: Colours,
+    // not all maps have colors
+    pub colours: Option<Colours>,
     pub hit_objects: CommaListOf<HitObject>,
 }
 
@@ -88,12 +89,12 @@ impl FromStr for BeatmapLevel {
         let timing_points_index = s.find("[TimingPoints]").ok_or_else(|| SectionNotFound {
             section: "TimingPoints".to_string(),
         })?;
-        let colours_index = s.find("[Colours]").ok_or_else(|| SectionNotFound {
-            section: "Colours".to_string(),
-        })?;
         let hit_objects_index = s.find("[HitObjects]").ok_or_else(|| SectionNotFound {
             section: "HitObjects".to_string(),
         })?;
+
+        // Freshly created maps don't have a colours section. So keep this optional.
+        let colours_index = s.find("[Colours]");
 
         let general_str = s[general_index..editor_index]
             .strip_prefix("[General]")
@@ -115,14 +116,29 @@ impl FromStr for BeatmapLevel {
             .strip_prefix("[Events]")
             .unwrap()
             .trim();
-        let timing_points_str = s[timing_points_index..colours_index]
-            .strip_prefix("[TimingPoints]")
-            .unwrap()
-            .trim();
-        let colours_str = s[colours_index..hit_objects_index]
-            .strip_prefix("[Colours]")
-            .unwrap()
-            .trim();
+
+        // If there is a colours section, parse it. Otherwise, just ignore it.
+        let (timing_points_str, colours_str) = if let Some(colours_index) = colours_index {
+            let timing_points_str = s[timing_points_index..colours_index]
+                .strip_prefix("[TimingPoints]")
+                .unwrap()
+                .trim();
+            let colours_str: Colours = s[colours_index..hit_objects_index]
+                .strip_prefix("[Colours]")
+                .unwrap()
+                .trim()
+                .parse()?;
+
+            (timing_points_str, Some(colours_str))
+        } else {
+            let timing_points_str = s[timing_points_index..hit_objects_index]
+                .strip_prefix("[TimingPoints]")
+                .unwrap()
+                .trim();
+
+            (timing_points_str, None)
+        };
+
         let hit_objects_str = s[hit_objects_index..]
             .strip_prefix("[HitObjects]")
             .unwrap()
@@ -135,7 +151,8 @@ impl FromStr for BeatmapLevel {
             difficulty: difficulty_str.parse()?,
             events: events_str.parse()?,
             timing_points: timing_points_str.parse()?,
-            colours: colours_str.parse()?,
+            // Parsing is done in logic above
+            colours: colours_str,
             hit_objects: hit_objects_str.parse()?,
         })
     }
@@ -162,7 +179,7 @@ impl ToString for BeatmapLevel {
         [HitObjects]\n\
         {}", self.general.to_string(), self.editor.to_string(), self.metadata.to_string(),
         self.difficulty.to_string(), self.events.to_string(), self.timing_points.to_string(),
-        self.colours.to_string(), self.hit_objects.to_string()}
+        self.colours.as_ref().unwrap().to_string(), self.hit_objects.to_string()}
     }
 }
 

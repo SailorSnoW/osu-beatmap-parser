@@ -13,7 +13,7 @@ use std::str::FromStr;
 pub struct TimingPoint {
     /// Start time of the timing section, in milliseconds from the beginning of the beatmap's audio.
     /// The end of the timing section is the next timing point's time (or never, if this is the last timing point).
-    pub time: u32,
+    pub time: f32,
     /// This property has two meanings:
     /// - For uninherited timing points, the duration of a beat, in milliseconds.
     /// - For inherited timing points, a negative inverse slider velocity multiplier, as a percentage.
@@ -40,7 +40,7 @@ impl FromStr for TimingPoint {
         let s: Vec<&str> = s.trim().split(",").map(|x| x.trim()).collect();
 
         Ok(TimingPoint {
-            time: u32::from_str(s[0]).map_err(|_| InvalidFormat {
+            time: f32::from_str(s[0]).map_err(|_| InvalidFormat {
                 field: "time".to_string(),
             })?,
             beat_length: f32::from_str(s[1]).map_err(|_| InvalidFormat {
@@ -90,7 +90,7 @@ mod tests {
     use crate::section::CommaListOf;
     use crate::section::Section;
 
-    const TEST_SECTION: &'static str = "10000,333.33,4,0,0,100,1,1
+    const TEST_SECTION: &'static str = "10000.3,333.33,4,0,0,100,1,1
 12000,-25,4,3,0,100,0,1
 ";
 
@@ -100,7 +100,7 @@ mod tests {
 
         assert_eq!(timing_points.len(), 2);
 
-        assert_eq!(timing_points[0].time, 10000);
+        assert_eq!(timing_points[0].time, 10000.3);
         assert_eq!(timing_points[0].beat_length, 333.33);
         assert_eq!(timing_points[0].meter, 4);
         assert_eq!(timing_points[0].sample_set, SampleSet::Default);
@@ -109,7 +109,7 @@ mod tests {
         assert_eq!(timing_points[0].is_uninherited, true.into());
         assert_eq!(timing_points[0].effects, Effects::KIAI);
 
-        assert_eq!(timing_points[1].time, 12000);
+        assert_eq!(timing_points[1].time, 12000.);
         assert_eq!(timing_points[1].beat_length, -25.0);
         assert_eq!(timing_points[1].meter, 4);
         assert_eq!(timing_points[1].sample_set, SampleSet::Drum);
@@ -123,7 +123,7 @@ mod tests {
     fn serialize_timing_points() {
         let mut timing_points: CommaListOf<TimingPoint> = CommaListOf::new();
         timing_points.push(TimingPoint {
-            time: 10000,
+            time: 10000.3,
             beat_length: 333.33,
             meter: 4,
             sample_set: SampleSet::Default,
@@ -133,7 +133,7 @@ mod tests {
             effects: Effects::KIAI,
         });
         timing_points.push(TimingPoint {
-            time: 12000,
+            time: 12000.,
             beat_length: -25.0,
             meter: 4,
             sample_set: SampleSet::Drum,
@@ -150,13 +150,13 @@ mod tests {
         use super::*;
         use crate::section::CommaListElement;
 
-        const TEST_TIMING_POINT: &'static str = "10000,333.33,4,0,0,100,1,1";
+        const TEST_TIMING_POINT: &'static str = "10000.3,333.33,4,0,0,100,1,1";
 
         #[test]
         fn parse_timing_point() {
             let timing_point = TimingPoint::parse(TEST_TIMING_POINT).unwrap();
 
-            assert_eq!(timing_point.time, 10000);
+            assert_eq!(timing_point.time, 10000.3);
             assert_eq!(timing_point.beat_length, 333.33);
             assert_eq!(timing_point.meter, 4);
             assert_eq!(timing_point.sample_set, SampleSet::Default);
@@ -169,7 +169,7 @@ mod tests {
         #[test]
         fn serialize_timing_point() {
             let timing_point = TimingPoint {
-                time: 10000,
+                time: 10000.3,
                 beat_length: 333.33,
                 meter: 4,
                 sample_set: SampleSet::Default,

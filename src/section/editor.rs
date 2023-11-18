@@ -33,16 +33,21 @@ impl FromStr for EditorSection {
 
         let bookmarks: String = Self::get_field_name_value(&s, "Bookmarks")?;
 
-        editor.bookmarks = bookmarks
-            .split(',')
-            .map(|x| {
-                i32::from_str(x)
-                    .map_err(|_| InvalidFormat {
-                        field: "Bookmarks".to_string(),
-                    })
-                    .unwrap()
-            })
-            .collect();
+        if bookmarks.is_empty() {
+            editor.bookmarks = Vec::new();
+        } else {
+            editor.bookmarks = bookmarks
+                .split(',')
+                .map(|x| {
+                    i32::from_str(x)
+                        .map_err(|_| InvalidFormat {
+                            field: "Bookmarks".to_string(),
+                        })
+                        .unwrap()
+                })
+                .collect();
+        }
+
         editor.distance_spacing = Self::get_field_name_value(&s, "DistanceSpacing")?;
         editor.beat_divisor = Self::get_field_name_value(&s, "BeatDivisor")?;
         editor.grid_size = Self::get_field_name_value(&s, "GridSize")?;

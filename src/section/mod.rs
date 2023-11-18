@@ -136,6 +136,7 @@ impl<T: CommaListElement> FromStr for CommaListOf<T> {
                 Ok(x) => list.push(x),
                 Err(BeatmapParseError::CommentaryEntry) => (),
                 Err(BeatmapParseError::StoryboardEntry) => (),
+                Err(BeatmapParseError::EmptySection { section: _ }) => (),
                 Err(x) => return Err(x),
             }
         }

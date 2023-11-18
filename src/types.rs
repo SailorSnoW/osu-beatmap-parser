@@ -205,6 +205,8 @@ pub mod general {
     ///////////////////////////////////////////////////////////////////////////////////////////////
     #[derive(Debug, PartialEq, Eq)]
     pub enum SampleSet {
+        /// the value in sampleset field when the map is first created
+        NONE,
         NORMAL,
         SOFT,
         DRUM,
@@ -221,6 +223,7 @@ pub mod general {
 
         fn from_str(s: &str) -> Result<Self, Self::Err> {
             match s {
+                "None" => Ok(SampleSet::NONE),
                 "Normal" => Ok(SampleSet::NORMAL),
                 "Soft" => Ok(SampleSet::SOFT),
                 "Drum" => Ok(SampleSet::DRUM),
@@ -234,6 +237,7 @@ pub mod general {
     impl From<&SampleSet> for String {
         fn from(pos: &SampleSet) -> Self {
             match pos {
+                SampleSet::NONE => String::from("None"),
                 SampleSet::NORMAL => String::from("Normal"),
                 SampleSet::SOFT => String::from("Soft"),
                 SampleSet::DRUM => String::from("Drum"),

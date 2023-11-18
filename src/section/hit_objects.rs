@@ -456,6 +456,12 @@ impl FromStr for HitObject {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let split: Vec<&str> = s.trim().splitn(6, ",").map(|x| x.trim()).collect();
+        if split == vec![""] {
+            Err(BeatmapParseError::EmptySection {
+                section: "HitObject".to_string(),
+            })?;
+        }
+
         let mut hit_object = HitObject::new();
 
         let object_type =
